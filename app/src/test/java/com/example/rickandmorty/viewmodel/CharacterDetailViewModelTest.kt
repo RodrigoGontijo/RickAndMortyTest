@@ -1,7 +1,7 @@
 package com.example.rickandmorty.viewmodel
 
 import app.cash.turbine.test
-import com.example.rickandmorty.data.model.CharacterDetail
+import com.example.rickandmorty.data.model.Character
 import com.example.rickandmorty.domain.GetCharacterDetailUseCase
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -34,22 +34,22 @@ class CharacterDetailViewModelTest {
     }
 
     @Test
-    fun `fetchCharacterDetail should update characterDetail`() = runTest {
-        val fakeDetail = CharacterDetail(1, "Rick", "Alive", "Human", "Earth", "Male", "url")
+    fun `fetchCharacter should update characterDetail`() = runTest {
+        val fakeDetail = Character(1, "Rick", "Alive", "Human", "", "Male", "url", mockk(), mockk())
         coEvery { getCharacterDetailUseCase.invoke(1) } returns fakeDetail
 
-        viewModel.fetchCharacterDetail(1)
+        viewModel.fetchCharacter(1)
 
-        viewModel.characterDetail.test {
+        viewModel.character.test {
             assertEquals(fakeDetail, awaitItem())
         }
     }
 
     @Test
-    fun `fetchCharacterDetail should handle error state`() = runTest {
+    fun `fetchCharacter should handle error state`() = runTest {
         coEvery { getCharacterDetailUseCase.invoke(1) } throws Exception("Network error")
 
-        viewModel.fetchCharacterDetail(1)
+        viewModel.fetchCharacter(1)
 
         viewModel.error.test {
             val errorMsg = awaitItem()
@@ -57,4 +57,3 @@ class CharacterDetailViewModelTest {
         }
     }
 }
-
