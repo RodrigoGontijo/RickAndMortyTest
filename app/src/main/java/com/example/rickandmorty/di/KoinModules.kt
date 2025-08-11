@@ -12,6 +12,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.example.rickandmorty.domain.GetCharactersUseCase
+import com.example.rickandmorty.domain.GetCharacterDetailUseCase
 
 val appModule = module {
     single {
@@ -33,7 +35,8 @@ val appModule = module {
     }
     single<RickAndMortyApi> { get<Retrofit>().create(RickAndMortyApi::class.java) }
     single { CharactersRepository(get()) }
-    viewModel { CharactersViewModel(get()) }
+    single { GetCharactersUseCase(get()) }
+    single { GetCharacterDetailUseCase(get()) }
+    viewModel { CharactersViewModel(get(), get()) }
     viewModel { CharacterDetailViewModel(get()) }
 }
-
