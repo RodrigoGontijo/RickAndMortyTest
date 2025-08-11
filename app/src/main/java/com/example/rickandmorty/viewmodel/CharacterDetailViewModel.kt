@@ -14,10 +14,24 @@ class CharacterDetailViewModel(
     private val _character = MutableStateFlow<Character?>(null)
     val character: StateFlow<Character?> = _character
 
+    private val _loading = MutableStateFlow(false)
+    val loading: StateFlow<Boolean> = _loading
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
     fun fetchCharacter(id: Int) {
         viewModelScope.launch {
-            _character.value = repository.getCharacterById(id)
+            _loading.value = true
+            _error.value = null
+            try {
+                val result = repository.getCharacterById(id)
+                _character.value = result
+            } catch (e: Exception) {
+                _error.value = e.localizedMessage
+            } finally {
+                _loading.value = false
+            }
         }
     }
 }
-

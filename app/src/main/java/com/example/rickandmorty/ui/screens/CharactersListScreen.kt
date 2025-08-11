@@ -17,27 +17,30 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.rickandmorty.data.model.Character
 import com.example.rickandmorty.viewmodel.CharactersViewModel
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharactersListScreen(
     onCharacterClick: (Int) -> Unit,
-    vm: CharactersViewModel = getViewModel()
+    vm: CharactersViewModel = koinViewModel()
 ) {
     val items = vm.characters.collectAsLazyPagingItems()
     val allCharacters by vm.charactersList.collectAsState()
-    var showAll by remember { mutableStateOf(false) }
+    val showAll by vm.showAll.collectAsState()
+    val loading by vm.loading.collectAsState()
+    val error by vm.error.collectAsState()
+
+    LaunchedEffect(showAll) {
+        if (showAll) vm.fetchAllCharacters()
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Rick & Morty") },
                 actions = {
-                    Button(onClick = {
-                        showAll = !showAll
-                        if (showAll) vm.fetchAllCharacters()
-                    }) {
+                    Button(onClick = { vm.toggleShowAll() }) {
                         Text(
                             if (showAll)
                                 "Pagination"
@@ -54,7 +57,11 @@ fun CharactersListScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (showAll) {
+            if (loading) {
+                Loading()
+            } else if (error != null) {
+                ErrorView(message = error ?: "Unknown error") { vm.retry() }
+            } else if (showAll) {
                 if (allCharacters.isEmpty()) {
                     Loading()
                 } else {

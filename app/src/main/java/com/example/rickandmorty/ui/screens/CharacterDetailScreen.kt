@@ -9,27 +9,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
 import com.example.rickandmorty.viewmodel.CharacterDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterDetailScreen(id: Int, onBack: () -> Unit) {
-    val vm: CharacterDetailViewModel = getViewModel()
+    val vm: CharacterDetailViewModel = koinViewModel()
     val character by vm.character.collectAsState()
-    var loading by remember { mutableStateOf(true) }
-    var error by remember { mutableStateOf<String?>(null) }
+    val loading by vm.loading.collectAsState()
+    val error by vm.error.collectAsState()
 
     LaunchedEffect(id) {
-        loading = true
-        error = null
-        try {
-            vm.fetchCharacter(id)
-        } catch (t: Throwable) {
-            error = t.localizedMessage
-        } finally {
-            loading = false
-        }
+        vm.fetchCharacter(id)
     }
 
     Scaffold(
